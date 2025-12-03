@@ -2,6 +2,8 @@
 
 A powerful, privacy-focused Chat Agent built with FastAPI, MySQL, and Local AI models. This project allows users to register, upload documents (PDF/Text), and chat with them using a Retrieval-Augmented Generation (RAG) pipeline entirely on their local machine.
 
+**GitHub Repository**: [https://github.com/Prakuljn/Chat-Agent](https://github.com/Prakuljn/Chat-Agent)
+
 ## 🚀 Features
 
 -   **User Authentication**: Simplified Registration and Login using JWT and Argon2 hashing.
@@ -22,61 +24,87 @@ A powerful, privacy-focused Chat Agent built with FastAPI, MySQL, and Local AI m
 
 ## 📋 Prerequisites
 
--   **Python 3.10+**
--   **MySQL Server** running on `localhost:3306`
--   **Git**
+Before you begin, ensure you have the following installed:
 
-## ⚙️ Installation
+1.  **Python 3.10+**: [Download Python](https://www.python.org/downloads/)
+2.  **MySQL Server**: [Download MySQL Community Server](https://dev.mysql.com/downloads/mysql/)
+    -   Make sure the MySQL service is running on `localhost:3306`.
+    -   Remember the `root` password you set during installation.
+3.  **Git**: [Download Git](https://git-scm.com/downloads)
 
-1.  **Clone the repository**
-    ```bash
-    git clone <repository-url>
-    cd chat-agent
-    ```
+## ⚙️ Installation & Setup
 
-2.  **Create a Virtual Environment**
-    ```bash
-    # Using uv (Recommended)
-    uv venv
-    .venv\Scripts\activate
+Follow these steps to get the project running on your local machine.
 
-    # OR Standard Python
-    python -m venv .venv
-    .venv\Scripts\activate
-    ```
+### 1. Clone the Repository
+```bash
+git clone https://github.com/Prakuljn/Chat-Agent.git
+cd Chat-Agent
+```
 
-3.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
+### 2. Create a Virtual Environment
+It's recommended to use a virtual environment to manage dependencies.
 
-4.  **Configure Environment Variables**
-    Create a `.env` file in the root directory:
-    ```env
-    DB_HOST="localhost"
-    DB_PORT=3306
-    DB_USER="root"
-    DB_PASSWORD="9256"
-    DB_NAME="Chat_Agent"
+**Using `uv` (Recommended for speed):**
+```bash
+uv venv
+.venv\Scripts\activate
+```
 
-    SECRET_KEY="secret"
-    ALGORITHM="HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES=30
-    ```
+**Using standard Python:**
+```bash
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+# Linux/Mac
+source .venv/bin/activate
+```
 
-5.  **Setup Database**
-    Create the database and run migrations:
-    ```bash
-    # Create DB (if not exists)
-    python create_db.py
-    
-    # Run Migrations
-    alembic upgrade head
-    ```
+### 3. Install Dependencies
+Install all required Python packages from `requirements.txt`:
+```bash
+pip install -r requirements.txt
+```
+
+### 4. Configure Environment Variables
+Create a file named `.env` in the root directory of the project. Copy the following configuration into it:
+
+```env
+# Database Configuration
+DB_HOST="localhost"
+DB_PORT=3306
+DB_USER="root"
+DB_PASSWORD="your password"  # <--- CHANGE THIS to your actual MySQL root password
+DB_NAME="db name"
+
+# Security Configuration
+SECRET_KEY="secret"  # Change this to a strong random string for production
+ALGORITHM="HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+
+> **Note**: Ensure `DB_PASSWORD` matches the password you set for your local MySQL root user.
+
+### 5. Setup Database
+This project includes a script to automatically create the database and apply migrations.
+
+**Step 5a: Create the Database**
+Run the `create_db.py` script. This connects to MySQL and creates the `Chat_Agent` database if it doesn't exist.
+```bash
+python create_db.py
+```
+*Output should be: `Database created successfully`*
+
+**Step 5b: Run Migrations**
+Use Alembic to create the necessary tables (users, files, chat_history) in the database.
+```bash
+alembic upgrade head
+```
+*You should see output indicating that tables are being created.*
 
 ## 🏃‍♂️ Running the Application
 
-Start the server using Uvicorn:
+Start the development server using Uvicorn:
 
 ```bash
 uvicorn main:app --reload
@@ -86,16 +114,23 @@ The API will be available at `http://127.0.0.1:8000`.
 
 ## 📖 Usage Guide
 
-1.  **Open API Documentation**: Go to `http://127.0.0.1:8000/docs`.
-2.  **Register**: Use the `/auth/register` endpoint to create an account.
-3.  **Login**: Use `/auth/login` to get an Access Token.
-    -   Click "Authorize" at the top right of Swagger UI and enter the token.
-4.  **Upload File**: Use `/upload/upload` to upload a PDF or Text file.
-    -   This will index the file into the local FAISS vector store.
-5.  **Chat**: Use `/chat/chat` to ask questions.
-    -   **Context Aware**: The bot remembers previous messages in the session.
-    -   **Document Aware**: It uses uploaded files to answer questions.
-6.  **Delete File**: Use `/upload/delete/{file_id}` to remove a file from the database and disk.
+1.  **Open API Documentation**: Go to `http://127.0.0.1:8000/docs` in your browser.
+2.  **Register**:
+    -   Use the `/auth/register` endpoint.
+    -   Click "Try it out", enter your details, and execute.
+3.  **Login**:
+    -   Use `/auth/login` to get an Access Token.
+    -   Copy the `access_token` from the response.
+    -   Click the **Authorize** button at the top right of the Swagger UI.
+    -   Paste the token and click "Authorize".
+4.  **Upload File**:
+    -   Use `/upload/upload` to upload a PDF or Text file.
+    -   This will index the file into the local FAISS vector store (`faiss_index/` folder will be created).
+5.  **Chat**:
+    -   Use `/chat/chat` to ask questions.
+    -   The bot will use the uploaded documents and your chat history to answer.
+6.  **Delete File**:
+    -   Use `/upload/delete/{file_id}` to remove a file.
 
 ## 🧠 How It Works
 
